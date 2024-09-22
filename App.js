@@ -136,6 +136,14 @@ export default function App() {
     // };
   }, []);
 
+  const ItemSeparatorComponent = () => (
+    <View style={{width: "100%", height:1, backgroundColor: COLOR.GRAY_1}} />
+  );
+
+  const ListFooterComponent = () => (
+    <Margin height={30} />
+  );
+
   return (
     <View style={styles.container}>
         <SectionList
@@ -144,6 +152,8 @@ export default function App() {
           renderSectionHeader={renderSectionHeader}
           ListHeaderComponent={ListHeaderComponent}
           renderItem={renderItem}
+          ItemSeparatorComponent={ItemSeparatorComponent}
+          ListFooterComponent={ListFooterComponent}
         />
     </View>
   );
