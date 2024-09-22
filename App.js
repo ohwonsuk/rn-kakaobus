@@ -3,18 +3,65 @@ import {
   SectionList,
   StyleSheet,
   View,
-  Text
+  Text,
+  TouchableOpacity
 } from "react-native";
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 
 import BusInfo from './src/BusInfo';
 import { COLOR } from './src/color';
 import { busStop, getBusNumColorByType, getRemainedTimeText, getSeatStatusText, getSections } from './src/data';
+import Margin from './src/Margin';
+import BookmarkButton from './src/BookmarkButton';
+
+const busStopBookMarkSize = 20;
+const busStopBookMarkPadding = 6;
 
 export default function App() {
   const [now, setNow] = useState(dayjs());
   const sections = getSections(busStop.buses);
+
+  const onPressBusStopBoomark = () => {};
+
+  const ListHeaderComponent = () => (
+    <SafeAreaView style={{backgroundColor: COLOR.GRAY_3, height: 250}}>
+      {/* 뒤로가기, 홈 아이콘 */}
+      <View style={{flexDirection: 'row', justifyContent: "space-between"}}>
+        <TouchableOpacity style={{padding:10 }}>
+          <SimpleLineIcons name="arrow-left" size={20} color={COLOR.WHITE} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{padding:10 }}>
+          <SimpleLineIcons name="home" size={20} color={COLOR.WHITE} />
+        </TouchableOpacity>
+      </View>
+      {/* 정류소 번호, 이름, 방향 */}
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        <Margin height={10} />
+        <Text style={{color: COLOR.WHITE, fontSize: 13}}>{busStop.id}</Text>
+        <Margin height={4} />
+        <Text style={{color: COLOR.WHITE, fontSize: 20}}>{busStop.name}</Text>
+        <Margin height={4} />
+        <Text style={{color: COLOR.GRAY_1, fontSize: 14}}>{busStop.directionDescription}</Text>
+        <Margin height={20} />
+
+        {/* 북마크 */}
+        <BookmarkButton 
+          size={busStopBookMarkSize}
+          isBookmarked={busStop.isBookmarked}
+          onPress={onPressBusStopBoomark}
+          style={{
+            borderWidth: 0.5, 
+            borderColor: COLOR.GRAY_1, 
+            borderRadius: (busStopBookMarkSize + busStopBookMarkPadding * 2) /2, 
+            padding: busStopBookMarkPadding
+          }}
+        />
+        <Margin height={25}/>
+      </View>
+    </SafeAreaView>
+  );
 
   const renderSectionHeader = ({ section: { title } }) => (
     <View style={{
@@ -80,24 +127,25 @@ export default function App() {
   )};
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newNow = dayjs();
-      setNow(newNow);
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
+    // const interval = setInterval(() => {
+    //   const newNow = dayjs();
+    //   setNow(newNow);
+    // }, 1000);
+    // return () => {
+    //   clearInterval(interval);
+    // };
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
         <SectionList
           style={{flex:1, width: "100%"}}
           sections={sections}
           renderSectionHeader={renderSectionHeader}
+          ListHeaderComponent={ListHeaderComponent}
           renderItem={renderItem}
         />
-    </SafeAreaView>
+    </View>
   );
 }
 
