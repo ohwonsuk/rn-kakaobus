@@ -2,38 +2,87 @@ import {
   SafeAreaView,
   SectionList,
   StyleSheet,
+  Text
 } from "react-native";
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+
 import BusInfo from './src/BusInfo';
 import { COLOR } from './src/color';
+import { busStop, getBusNumColorByType, getRemainedTimeText, getSeatStatusText, getSections } from './src/data';
 
 export default function App() {
+  const [now, setNow] = useState(dayjs());
+  const sections = getSections(busStop.buses);
+
+  const renderItem = ({item: bus}) => {
+    const numColor = getBusNumColorByType(bus.type);
+        /**
+     * Start
+     */
+    // undefined ?? null -> null 
+    // { ... } ?? null -> { ... }
+    const firstNextBusInfo = bus.nextBusInfos?.[0] ?? null; 
+    const secondNextBusInfo = bus.nextBusInfos?.[1] ?? null;
+    const newNextBusInfos =
+      !firstNextBusInfo && !secondNextBusInfo
+        ? [null]
+        : [firstNextBusInfo, secondNextBusInfo];
+
+    // if (bus.num === 2000) {
+    //   console.log(bus.num, 'newNextBusInfos', newNextBusInfos); // TODO: 확인
+    // }
+
+    const processedNextBusInfos = newNextBusInfos.map((info) => {
+      if (!info)
+        return {
+          hasInfo: false,
+          remainedTimeText: "도착 정보 없음",
+        };
+
+      const { arrivalTime, numOfRemainedStops, numOfPassengers } = info;
+      const remainedTimeText = getRemainedTimeText(now, arrivalTime);
+      const seatStatusText = getSeatStatusText(bus.type, numOfPassengers);
+      return {
+        hasInfo: true,
+        remainedTimeText,
+        numOfRemainedStops,
+        seatStatusText,
+      };
+    });
+    /**
+     * End
+     */
+
+    return (
+      <BusInfo 
+      isBookmarked={bus.isBookmarked}
+      onPressBoomark={() => {}}
+      num={bus.num}
+      directionDescription={bus.directionDescription}
+      numColor={numColor}
+      processedNextBusInfos={processedNextBusInfos}
+      />
+  )};
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newNow = dayjs();
+      setNow(newNow);
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      <BusInfo 
-      isBookmarked={true}
-      onPressBoomark={() => {}}
-      num={146}
-      directionDescription="강남역.강남역사거리"
-      numColor={COLOR.BUS_B}
-      />
-        {/* <SectionList
-          sections={[
-            {
-              title: "간선버스",
-              data: [{ busNum: 146 }, { busNum: 360 }, { busNum: 740 }],
-            },
-            {
-              title: "지선버스",
-              data: [{ busNum: 3412 }],
-            },
-            {
-              title: "직행버스",
-              data: [{ busNum: 1100 }, { busNum: 1700 }],
-            },
-          ]}
+        <SectionList
+          style={{flex:1, width: "100%"}}
+          sections={sections}
           renderSectionHeader={({ section: { title } }) => <Text>{title}</Text>}
-          renderItem={({ item }) => <Text>{item.busNum}</Text>}
-        /> */}
+          renderItem={renderItem}
+        />
     </SafeAreaView>
   );
 }

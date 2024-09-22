@@ -10,7 +10,8 @@ export default ({
   onPressBoomark,
   num,
   directionDescription,
-  numColor
+  numColor,
+  processedNextBusInfos
 }) => {
   return (
     <View style={{flexDirection: "row"}}>
@@ -30,8 +31,17 @@ export default ({
       <View style={{flex:1, flexDirection: 'row', alignItems: 'center'}}>
         {/* M분 S초 / N번째 전 / 여유 */}
         <View style={{flex:1}}>
-          <NextBusInfo busInfo={true} remainedTimeText={"8분 0초"} numOfRemainedStops={5} seatStatusText={"여유"}/>
-          <NextBusInfo busInfo={false} remainedTimeText={"도착 정보 없음"} />
+          {processedNextBusInfos.map((info, index) => (
+            <NextBusInfo 
+              key={`next-bus-info-${index}`}
+              busInfo={info.hasInfo} 
+              remainedTimeText={info.remainedTimeText} 
+              numOfRemainedStops={info.numOfRemainedStops} 
+              seatStatusText={info.seatStatusText}
+            />
+           ))}
+          {/* <NextBusInfo busInfo={true} remainedTimeText={"8분 0초"} numOfRemainedStops={5} seatStatusText={"여유"}/> */}
+          {/* <NextBusInfo busInfo={false} remainedTimeText={"도착 정보 없음"} /> */}
         </View>
         {/* 알람아이콘 */}
         <AlarmButton onPress={() => {}} style={{paddingHorizontal:15}} />
