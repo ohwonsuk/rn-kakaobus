@@ -2,10 +2,28 @@ import { TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { COLOR } from './color';
+import { useState } from 'react';
 
-export default ({size, onPress, isBookmarked, style}) => {
+const useBookmark = (initialIsBookmarked) => {
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+  const toggleIsBookmarked = () => setIsBookmarked(!initialIsBookmarked);
+  
+  return {
+    isBookmarked,
+    toggleIsBookmarked
+  }
+  };
+
+
+export default ({size, onPress, isBookmarked : isBookmarkedProp, style}) => {
+  const {isBookmarked, toggleIsBookmarked} = useBookmark(isBookmarkedProp);
+  
   return (
-    <TouchableOpacity style={style} onPress={onPress}>
+    <TouchableOpacity style={style} onPress={() => {
+      toggleIsBookmarked();
+      onPress();
+    }
+    }>
       <Ionicons name="star" size={size} color={isBookmarked ? COLOR.YELLOW : COLOR.GRAY_1} />
     </TouchableOpacity>
   )
